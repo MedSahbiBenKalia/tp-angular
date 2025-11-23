@@ -1,11 +1,24 @@
-import { Component, computed, effect, inject, linkedSignal, signal } from "@angular/core";
+import { Component, computed, effect, inject, linkedSignal, RESPONSE_INIT, signal } from "@angular/core";
 import { Product } from "./dto/product.dto";
 import { ProductService } from "./services/product.service";
 import { Settings } from "./dto/product-settings.dto";
 import { DEFAULT_SETTINGS } from "./constants/defautl-setting";
 import { rxResource } from "@angular/core/rxjs-interop";
 import { ProductApiResponse } from "./dto/product-api-response.dto";
-import { tap } from "rxjs";
+import { BehaviorSubject, concatMap, finalize, scan, takeWhile, tap } from "rxjs";
+import { API } from "src/config/api.config";
+
+const DEFAUT_SETTINGS: Settings = {
+  limit: 12,
+  skip: 0,
+};
+
+const DEFAULT_PRODUCT_API_RESPONSE : ProductApiResponse = {
+  products: [],
+  total: 0,
+  skip:0,
+  limit:0
+}
 
 @Component({
     selector: "app-products",
@@ -18,62 +31,58 @@ export class ProductsComponent {
 
   private productService = inject(ProductService);
 
-  settings = signal<Settings>(DEFAULT_SETTINGS);
+  readonly settings$: BehaviorSubject<Settings> = new BehaviorSubject<Settings>(
+    DEFAUT_SETTINGS
+  );
+  
+  isloadingNewProduct = signal(0);
 
   productResource = rxResource<ProductApiResponse, Settings>({
-    request: () => this.settings(),
-    loader: ({ request }) => this.productService.getProducts(request).pipe(
-      tap(response => console.log('Response from API:', response))
-    ),
+    loader: () => this.settings$.pipe(
+            tap(() => this.isloadingNewProduct.update(n => n+1)), //code imperatif
+            concatMap((settings) => this.productService.getProducts(settings)
+            .pipe(
+              finalize(() => this.isloadingNewProduct.update(n => n-1)) //code imperatif
+            )
+            ),
+            scan ((allResponses, newResponse) => {
+                const combinedProducts = [...newResponse.products,...allResponses.products ];
+                return {
+                    ...newResponse,
+                    products: combinedProducts
+                };
+              }
+            ),
+            tap((response) => {
+              console.log("all products length :", response.products.length)
+              console.log("total products available:", response.total)
+              })
+            ,
+            finalize(() => this.isloadingNewProduct.set(0)), //code imperatif
+            takeWhile((response) => response.products.length < response.total , true),
+        ),
+    defaultValue: DEFAULT_PRODUCT_API_RESPONSE
   });
+   
 
 
-  totalProducts = linkedSignal<number | undefined, number>({
-    source: () => (this.productResource.value()?.total),
-    computation: (source, previous) => {
-      //total is undefined take previous value
-      if (source === undefined) {
-        return previous?.value ?? 0;
-      }
-      return source;
-    }
-  });
+  totalProducts = computed(() => this.productResource.value()?.total);
 
-  currentProducts = linkedSignal<Product[] | undefined, Product[]>({
-    source: computed(() => this.productResource.value()?.products),
-    computation: (source, previous) => {
-      //products is undefined take previous value
-      if (source=== undefined) {
-        return previous?.value ?? [];
-      }
-      return source;
-    }
-  });
-
-  products = linkedSignal<Product[], Product[]>({
-    source : () => this.currentProducts(),
-    computation : (newProducts , previousProduct) =>{
-      if (!previousProduct) return newProducts;
-      if (newProducts.length === 0) return previousProduct.value; //hedhi zeyda
-      return [...previousProduct.value, ...newProducts].reverse(); 
-    } 
-  })
+  products = computed(() => this.productResource.value()?.products);
 
   hasMoreProducts = computed(() => this.products().length < this.totalProducts());
 
   loadMore() {
-    if (this.hasMoreProducts() && !this.productResource.isLoading()) {
-      this.settings.update(current => ({
-        ...current,
-        skip: current.skip + current.limit
-      }));
-    }
+      this.settings$.next({
+        limit : this.settings$.value.limit,
+        skip: this.settings$.value.skip + this.settings$.value.limit,
+      });
   }
 
    constructor() {
     effect(() => {
       console.log('=== important  Status ===');
-      console.log('Current Settings:', this.settings());
+      console.log('Current Settings:', this.settings$.value);
       console.log('isLoading:', this.productResource.isLoading());
       console.log('hasValue:', this.productResource.hasValue());
       console.log('value:', this.productResource.value());
@@ -82,7 +91,6 @@ export class ProductsComponent {
       console.log('totalProducts :', this.totalProducts());
       console.log('length of products :', this.products().length);
       console.log('hasMoreProducts :', this.hasMoreProducts());
-      console.log('current products:', this.currentProducts());
       console.log('products:', this.products());
       console.log('**==============================**');
     });
@@ -90,79 +98,3 @@ export class ProductsComponent {
   
 }
 
-
-/*
-  totalProducts = linkedSignal<{ total: number | undefined; hasValue: boolean }, number>({
-    source: computed(() => ({
-      total: this.productResource.value()?.total,
-      hasValue: this.productResource.hasValue()
-    })),
-    computation: (source, previous) => {
-      // check if source has no value or total is undefined
-      if (!source.hasValue || source.total === undefined) {
-        return previous?.value ?? 0;
-      }
-      return source.total;
-    }
-  });
-*/
-
-/*
-  isLoading = computed(() => this.productResource.isLoading());
-*/
-
-/*
-old version:
-
-
-  totalProducts = linkedSignal<number | undefined, number>({
-    source: () => (this.productResource.value()?.total),
-    computation: (source, previous) => {
-      // check if source has no value or total is undefined
-      if (!this.productResource.hasValue || source === undefined) {
-        return previous?.value ?? 0;
-      }
-      return source;
-    }
-  });
-
-  currentProducts = linkedSignal<{ products: Product[] | undefined; hasValue: boolean }, Product[]>({
-    source: computed(() => ({
-      products: this.productResource.value()?.products,
-      hasValue: this.productResource.hasValue()
-    })),
-    computation: (source, previous) => {
-      // check if source has no value or products is undefined
-      if (!source.hasValue || source.products === undefined) {
-        return previous?.value ?? [];
-      }
-      return source.products;
-    }
-  });
-
-  products = linkedSignal<Product[], Product[]>({
-    source : () => this.currentProducts(),
-    computation : (newProducts , previewProduct) =>{
-      if (!previewProduct) return newProducts;
-      return newProducts.length > 0 ? [...previewProduct.value, ...newProducts] : previewProduct.value;
-    } 
-  })
-
-  hasMoreProducts = computed(() => {
-    console.log("current products length:",this.products().length );
-    console.log("total products:", this.totalProducts());
-    const currentProductLength = this.products().length;
-    const total = this.totalProducts();
-    return currentProductLength < total;
-  });
-
-  loadMore() {
-    if (this.hasMoreProducts() && !this.productResource.isLoading()) {
-      this.settings.update(current => ({
-        ...current,
-        skip: current.skip + current.limit
-      }));
-    }
-  }
-
-  */
