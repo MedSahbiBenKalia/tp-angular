@@ -11,4 +11,7 @@ import { RouterOutlet } from '@angular/router';
 })
 export class AppComponent {
   title = 'Starting Advanced Topics';
+  onMouseMove() {
+    console.log("sahbi move mouse in appcomponent to trigger change detecting by event");
+  }
 }

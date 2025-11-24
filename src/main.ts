@@ -1,21 +1,44 @@
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
-
-
 import { AuthInterceptorProvider } from './app/auth/interceptors/auth.interceptor';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { ToastrModule } from 'ngx-toastr';
-import { AppRoutingModule } from './app/app-routing.module';
-import { ServiceWorkerModule } from '@angular/service-worker';
+import { provideToastr, ToastrModule } from 'ngx-toastr';
+
+import { provideServiceWorker, ServiceWorkerModule } from '@angular/service-worker';
 import { isDevMode, importProvidersFrom } from '@angular/core';
 import { AppComponent } from './app/app.component';
+import { provideRouter } from '@angular/router';
+import { routes } from './app/app-routing.module';
+import { provideExperimentalZonelessChangeDetection } from '@angular/core';
 
-
-bootstrapApplication(AppComponent, {
+bootstrapApplication(AppComponent , {
     providers: [
-        importProvidersFrom(BrowserModule, FormsModule, // required animations module
+        
+        // HTTP Client with functional interceptor
+        provideHttpClient(withInterceptorsFromDi()),
+        // Animations
+        provideAnimations(),
+        // Router
+        provideRouter(routes),
+        // Toastr
+        provideToastr({}),
+        // Service Worker
+        provideServiceWorker('ngsw-worker.js', {
+            enabled: !isDevMode(),
+            registrationStrategy: 'registerWhenStable:30000',
+        }),
+        //zoneless experimental 
+        provideExperimentalZonelessChangeDetection(),
+    ]
+})
+  .catch(err => console.error(err));
+
+/*
+    **this removed because of standalone components approach**
+
+  importProvidersFrom(BrowserModule, FormsModule, // required animations module
         ToastrModule.forRoot(), // ToastrModule added
         AppRoutingModule, ReactiveFormsModule, ServiceWorkerModule.register("ngsw-worker.js", {
             enabled: !isDevMode(),
@@ -24,8 +47,4 @@ bootstrapApplication(AppComponent, {
             registrationStrategy: "registerWhenStable:30000",
         })),
         AuthInterceptorProvider,
-        provideHttpClient(withInterceptorsFromDi()),
-        provideAnimations(),
-    ]
-})
-  .catch(err => console.error(err));
+*/
