@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ChangeDetectionStrategy} from '@angular/core';
 import {User} from "../users.service";
 import { FormsModule } from '@angular/forms';
 
@@ -15,7 +15,8 @@ export const fibonnaci = (n: number): number => {
     templateUrl: './user-list.component.html',
     styleUrls: ['./user-list.component.css'],
     standalone: true,
-    imports: [FormsModule]
+    imports: [FormsModule],
+    changeDetection : ChangeDetectionStrategy.OnPush
 })
 export class UserListComponent {
   @Input() usersCluster: string = '';

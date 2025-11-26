@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import {User, UsersService} from "../users.service";
 import * as ChartJs from 'chart.js/auto';
 import { UserListComponent } from '../user-list/user-list.component';
@@ -7,6 +7,7 @@ import { UserListComponent } from '../user-list/user-list.component';
     templateUrl: './rh.component.html',
     styleUrls: ['./rh.component.css'],
     standalone: true,
+    changeDetection : ChangeDetectionStrategy.OnPush,
     imports: [UserListComponent]
 })
 export class RhComponent implements OnInit {
@@ -44,5 +45,15 @@ export class RhComponent implements OnInit {
       ]
     }
     });
+  }
+  
+  
+  /**
+   * give the time of the last change detection
+   * @returns the time of the last change detection 
+   */
+  lastCD(): string {
+    const now = new Date();
+    return `Last Change Detection at ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
   }
 }

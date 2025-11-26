@@ -30,7 +30,7 @@ bootstrapApplication(AppComponent , {
             registrationStrategy: 'registerWhenStable:30000',
         }),
         //zoneless experimental 
-        provideExperimentalZonelessChangeDetection(),
+        //provideExperimentalZonelessChangeDetection(),
     ]
 })
   .catch(err => console.error(err));
