@@ -1,6 +1,6 @@
 <div class="alert alert-info">List of {{usersCluster}}</div>
 <div class="alert alert-info">
-  {{lastRender()}} user-list
+  {{lastRender()}} app-user-list
 </div>
 <div class="row">
   <div class="col-9">
@@ -11,9 +11,7 @@
   </div>
 </div>
 <ol class="list-group">
-  <li
-    *ngFor="let user of users"
-    class="list-group-item">
-    <app-user-item [user] = "user"></app-user-item>
+  <li *ngFor="let user of users" class="list-group-item">
+    <app-user-item [user]="user"></app-user-item>
   </li>
 </ol>

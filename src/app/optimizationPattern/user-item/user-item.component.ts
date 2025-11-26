@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input, input } from '@angular/core';
 import { User } from '../users.service';
+import { lastRender } from '../last-render';
 
 
 
@@ -14,4 +15,7 @@ import { User } from '../users.service';
 export class UserItemComponent {
 
   @Input({required : true}) user! : User;
+  lastRender(): string {
+    return lastRender();
+  }
 }
