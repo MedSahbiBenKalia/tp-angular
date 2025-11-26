@@ -54,6 +54,7 @@ import { SliderComponent } from "./rxjs/slider/slider.component";
 import { RainbowDirective } from "./directives/rainbow.directive";
 import { RainBowComponent } from "./rain-bow/rain-bow.component";
 import { UserItemComponent } from "./optimizationPattern/user-item/user-item.component";
+import { FibonacciPipe } from "./optimizationPattern/pipes/fibonacci.pipe";
 
 @NgModule({
   declarations: [
@@ -107,12 +108,13 @@ import { UserItemComponent } from "./optimizationPattern/user-item/user-item.com
     AppRoutingModule,
     ReactiveFormsModule,
     ServiceWorkerModule.register("ngsw-worker.js", {
-      enabled: !isDevMode(),
-      // Register the ServiceWorker as soon as the application is stable
-      // or after 30 seconds (whichever comes first).
-      registrationStrategy: "registerWhenStable:30000",
+        enabled: !isDevMode(),
+        // Register the ServiceWorker as soon as the application is stable
+        // or after 30 seconds (whichever comes first).
+        registrationStrategy: "registerWhenStable:30000",
     }),
-  ],
+    FibonacciPipe
+],
   providers: [
     AuthInterceptorProvider,
     provideHttpClient(withInterceptorsFromDi()),
