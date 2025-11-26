@@ -6,7 +6,7 @@ import { DEFAULT_SETTINGS } from "./constants/defautl-setting";
 import { rxResource } from "@angular/core/rxjs-interop";
 import { ProductApiResponse } from "./dto/product-api-response.dto";
 import { BehaviorSubject, concatMap, finalize, scan, takeWhile, tap } from "rxjs";
-import { API } from "src/config/api.config";
+
 
 const DEFAUT_SETTINGS: Settings = {
   limit: 12,
