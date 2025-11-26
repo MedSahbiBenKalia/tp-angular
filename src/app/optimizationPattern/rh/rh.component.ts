@@ -1,11 +1,13 @@
-import {Component, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
 import {User, UsersService} from "../users.service";
+import {lastRender} from "../last-render";
 import * as ChartJs from 'chart.js/auto';
 @Component({
   standalone: false,
   selector: 'app-rh',
   templateUrl: './rh.component.html',
-  styleUrls: ['./rh.component.css']
+  styleUrls: ['./rh.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RhComponent implements OnInit {
   oddUsers: User[];
@@ -22,6 +24,11 @@ export class RhComponent implements OnInit {
   addUser(list: User[], newUser: string) {
     this.userService.addUser(list, newUser);
   }
+  
+  lastRender(): string {
+    return lastRender();
+  }
+  
   createChart(){
     const data = [
       { users: 'Workers', count: this.oddUsers.length },

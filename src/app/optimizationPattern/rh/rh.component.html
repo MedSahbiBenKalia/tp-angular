@@ -3,6 +3,10 @@
   <canvas  id="MyChart" >{{chart}}</canvas>
 </div>
 
+<div class="alert alert-info">
+  {{lastRender()}} rh component
+</div>
+
 <div class="row">
   <div class="col">
     <app-user-list (add)="addUser(oddUsers, $event)" [users]="oddUsers" [usersCluster]="'Boss'"></app-user-list>

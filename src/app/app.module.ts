@@ -53,6 +53,7 @@ import { AutocompleteComponent } from "./cv/autocomplete/autocomplete.component"
 import { SliderComponent } from "./rxjs/slider/slider.component";
 import { RainbowDirective } from "./directives/rainbow.directive";
 import { RainBowComponent } from "./rain-bow/rain-bow.component";
+import { UserItemComponent } from "./optimizationPattern/user-item/user-item.component";
 
 @NgModule({
   declarations: [
@@ -93,7 +94,8 @@ import { RainBowComponent } from "./rain-bow/rain-bow.component";
     RhComponent,
     UserListComponent,
     ProductsComponent,
-    RainBowComponent
+    RainBowComponent,
+    UserItemComponent
   
   ],
   bootstrap: [AppComponent],

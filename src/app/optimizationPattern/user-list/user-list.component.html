@@ -1,4 +1,7 @@
 <div class="alert alert-info">List of {{usersCluster}}</div>
+<div class="alert alert-info">
+  {{lastRender()}} user-list
+</div>
 <div class="row">
   <div class="col-9">
     <input type="text" class="form-control" [(ngModel)]="userFullName">
@@ -11,6 +14,6 @@
   <li
     *ngFor="let user of users"
     class="list-group-item">
-    {{user.name}} : {{user.age}} [{{fibo(user.age)}}]
+    <app-user-item [user] = "user"></app-user-item>
   </li>
 </ol>
