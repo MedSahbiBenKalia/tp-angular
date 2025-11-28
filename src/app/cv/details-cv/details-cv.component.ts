@@ -1,13 +1,13 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Cv } from '../model/cv';
 import { CvService } from '../services/cv.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { APP_ROUTES } from '../../../config/routes.config';
 import { AuthService } from '../../auth/services/auth.service';
 
 import { DefaultImagePipe } from '../pipes/default-image.pipe';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { catchError, map, of, switchMap, tap } from 'rxjs';
 
 @Component({
@@ -24,18 +24,28 @@ export class DetailsCvComponent implements OnInit {
   private toastr = inject(ToastrService);
   authService = inject(AuthService);
 
-  cv = toSignal(
-    this.activatedRoute.params.pipe(
-      tap(()=>console.log("params received")),
-      map(params => params['id']),
-      switchMap(id => this.cvService.getCvById(id)),
-      catchError(() => {
-        this.router.navigate(["cv-master-detail"]);
+  paramsSignal = toSignal(this.activatedRoute.params, { initialValue: {} as Params });
+
+  // Use the signal in rxResource
+  cvResource = rxResource({
+    request: () => this.paramsSignal(),
+    loader: ({ request }) => {
+      console.log("params received rxResouce", request);
+      const id = request['id'];
+      if (!id) {
         return of(null);
-      })
-    )
-    ,{ initialValue: null }
-  );
+      }
+      return this.cvService.getCvById(+id).pipe(
+        catchError(() => {
+          this.router.navigate(["master-detail-cv"]);
+          return of(null);
+        })
+      );
+    }
+  });
+
+  cv = this.cvResource.value;
+
 
 
   ngOnInit() {
