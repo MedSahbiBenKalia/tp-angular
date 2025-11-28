@@ -7,6 +7,8 @@ import { APP_ROUTES } from '../../../config/routes.config';
 import { AuthService } from '../../auth/services/auth.service';
 
 import { DefaultImagePipe } from '../pipes/default-image.pipe';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { catchError, map, of, switchMap, tap } from 'rxjs';
 
 @Component({
     selector: 'app-details-cv',
@@ -22,19 +24,25 @@ export class DetailsCvComponent implements OnInit {
   private toastr = inject(ToastrService);
   authService = inject(AuthService);
 
-  cv: Cv | null = null;
+  cv = toSignal(
+    this.activatedRoute.params.pipe(
+      tap(()=>console.log("params received")),
+      map(params => params['id']),
+      switchMap(id => this.cvService.getCvById(id)),
+      catchError(() => {
+        this.router.navigate(["cv-master-detail"]);
+        return of(null);
+      })
+    )
+    ,{ initialValue: null }
+  );
+
 
   ngOnInit() {
-    const id = this.activatedRoute.snapshot.params['id'];
-    this.cvService.getCvById(+id).subscribe({
-        next: (cv) => {
-          this.cv = cv;
-        },
-        error: (e) => {
-          this.router.navigate([APP_ROUTES.cv]);
-        },
-      });
   }
+
+   
+
   deleteCv(cv: Cv) {
     this.cvService.deleteCvById(cv.id).subscribe({
       next: () => {

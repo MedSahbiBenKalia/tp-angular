@@ -7,6 +7,7 @@ import { ListComponent } from "../list/list.component";
 import { CvCardComponent } from "../cv-card/cv-card.component";
 import { EmbaucheComponent } from "../embauche/embauche.component";
 import { UpperCasePipe, DatePipe } from "@angular/common";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 @Component({
     selector: "app-cv",
     templateUrl: "./cv.component.html",
@@ -44,6 +45,8 @@ export class CvComponent {
     });
     this.logger.logger("je suis le cvComponent");
     this.toastr.info("Bienvenu dans notre CvTech");
-    this.cvService.selectCv$.subscribe((cv) => (this.selectedCv = cv));
+    this.cvService.selectCv$
+      .pipe(takeUntilDestroyed())
+      .subscribe((cv) => (this.selectedCv = cv));
   }
 }

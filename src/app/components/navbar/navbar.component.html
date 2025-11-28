@@ -35,6 +35,17 @@
               routerLinkActive="active text-primary"
               >Cv</a
               >
+              
+              <a
+              class="nav-link"
+              [routerLinkActiveOptions]="{ exact: true }"
+              [routerLink]="['master-detail-cv']"
+              routerLinkActive="active text-primary"
+              >master-detail-cv</a
+              >
+
+
+
               @if (authService.isAuthenticated()) {
                 <a
                   class="nav-link"
