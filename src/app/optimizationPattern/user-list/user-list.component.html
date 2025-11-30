@@ -4,7 +4,7 @@
 </div>
 <div class="row">
   <div class="col-9">
-    <input type="text" class="form-control" [(ngModel)]="userFullName">
+    <input #userInput type="text" class="form-control" [value]="userFullName">
   </div>
   <div class="col-3">
     <button class="btn btn-primary" [disabled]="!userFullName" (click)="addUser()">add user</button>

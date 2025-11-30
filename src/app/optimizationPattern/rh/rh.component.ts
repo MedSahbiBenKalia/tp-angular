@@ -23,6 +23,23 @@ export class RhComponent implements OnInit {
     }
   addUser(list: User[], newUser: string) {
     this.userService.addUser(list, newUser);
+
+    this.chart.data.datasets[0].data = [
+      this.oddUsers.length,
+      this.evenUsers.length
+    ];
+
+    this.chart.update();
+
+    /*
+    if (list === this.oddUsers) {
+      this.oddUsers = this.userService.addUser(this.oddUsers, newUser);
+    } else if (list === this.evenUsers) {
+      this.evenUsers = this.userService.addUser(this.evenUsers, newUser);
+    }
+      this.cdr.markForCheck(); //zeyda markforcheck pour 2 reson(1-fils mye3ou 7atou durty
+                                                                 2-3ana handled event fel parent)
+    */
   }
   
   lastRender(): string {
@@ -31,8 +48,8 @@ export class RhComponent implements OnInit {
   
   createChart(){
     const data = [
-      { users: 'Workers', count: this.oddUsers.length },
-      { users: 'Boss', count: this.evenUsers.length },
+      { users: 'Workers', count: this.evenUsers.length },
+      { users: 'Boss', count: this.oddUsers.length },
     ];
     this.chart = new ChartJs.Chart("MyChart",
     {

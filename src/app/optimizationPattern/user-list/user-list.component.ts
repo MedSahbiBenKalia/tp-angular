@@ -1,7 +1,8 @@
-import {Component, Input, Output, EventEmitter, ChangeDetectionStrategy} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ChangeDetectorRef, ChangeDetectionStrategy, inject, ElementRef, OnInit} from '@angular/core';
 import {User} from "../users.service";
-import { last } from 'rxjs';
+import { fromEvent  } from 'rxjs';
 import { lastRender } from '../last-render';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 
 @Component({
@@ -12,6 +13,9 @@ import { lastRender } from '../last-render';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UserListComponent {
+
+  private host = inject(ElementRef);
+  private cdr = inject(ChangeDetectorRef);
   @Input() usersCluster: string = '';
   @Input() users: User[] = [];
   @Output() add = new EventEmitter<string>();
@@ -21,7 +25,22 @@ export class UserListComponent {
     this.userFullName = '';
   }
 
+  constructor() {
+    fromEvent<Event>(this.host.nativeElement, 'input')
+    .pipe(
+      takeUntilDestroyed()
+    )
+    .subscribe((event : Event) => {
+      //console.log('input event fired event:', event);
+      const inputElement = event.target as HTMLInputElement; 
+      this.userFullName = inputElement.value;
+      this.cdr.detectChanges(); 
+    });
+  }
+
   lastRender(): string {
     return lastRender();
   }
 }
+
+

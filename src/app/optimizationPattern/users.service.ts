@@ -25,5 +25,13 @@ export class UsersService {
       name,
       age: faker.datatype.number({min: 18, max: 30})
     });
+    /*
+    const newUser: User = {
+      name,
+      age: faker.datatype.number({ min: 18, max: 30 }),
+    };
+    return [newUser, ...list];
+    */
   }
+
 }
