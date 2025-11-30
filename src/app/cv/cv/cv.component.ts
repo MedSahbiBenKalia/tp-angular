@@ -29,28 +29,21 @@ export class CvComponent {
 
 
   selectedCv: Cv | null = null;
-  /*   selectedCv: Cv | null = null; */
   date = new Date();
-
-  cvResouce = rxResource({
-    loader: () => this.cvService.getCvs().pipe(
-      catchError(
-        () => {
-          this.toastr.error(`
-            Attention!! Les données sont fictives, problème avec le serveur.
-            Veuillez contacter l'admin.`);
-          
-          return of(this.cvService.getFakeCvs());
-        }
-
-      )
-    ),
-  })
-
-  cvs = this.cvResouce.value;
+  cvs = this.cvService.CvResource.value;
 
   constructor() {
-    // this.cvService.getCvs().subscribe({
+    this.logger.logger("je suis le cvComponent");
+    this.toastr.info("Bienvenu dans notre CvTech");
+    this.cvService.selectCv$
+      .pipe(takeUntilDestroyed())
+      .subscribe((cv) => (this.selectedCv = cv));
+  }
+}
+
+
+/* old code
+// this.cvService.getCvs().subscribe({
     //   next: (cvs) => {
     //     this.cvs = cvs;
     //   },
@@ -61,10 +54,4 @@ export class CvComponent {
     //       Veuillez contacter l'admin.`);
     //   },
     // });
-    this.logger.logger("je suis le cvComponent");
-    this.toastr.info("Bienvenu dans notre CvTech");
-    this.cvService.selectCv$
-      .pipe(takeUntilDestroyed())
-      .subscribe((cv) => (this.selectedCv = cv));
-  }
-}
+*/

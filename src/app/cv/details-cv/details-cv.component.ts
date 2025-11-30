@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, Signal, inject } from '@angular/core';
 import { Cv } from '../model/cv';
 import { CvService } from '../services/cv.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -26,7 +26,7 @@ export class DetailsCvComponent implements OnInit {
 
   paramsSignal = toSignal(this.activatedRoute.params, { initialValue: {} as Params });
 
-  // Use the signal in rxResource
+  // !!!!! Use the signal in rxResource request !!!!!!
   cvResource = rxResource({
     request: () => this.paramsSignal(),
     loader: ({ request }) => {
@@ -44,7 +44,7 @@ export class DetailsCvComponent implements OnInit {
     }
   });
 
-  cv = this.cvResource.value;
+  cv= this.cvResource.value;
 
 
 

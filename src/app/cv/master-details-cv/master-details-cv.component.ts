@@ -7,7 +7,8 @@ import { EmbaucheComponent } from '../embauche/embauche.component';
 import { ListComponent } from '../list/list.component';
 import { DatePipe, UpperCasePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { catchError, of } from 'rxjs';
 
 
 @Component({
@@ -33,8 +34,21 @@ export class MasterDetailsCvComponent {
   cvs: Cv[] = [];
   selectedCv: Cv | null = null;
   date = new Date();
-
+  
+  cvSignal = this.cvService.CvResource.value;
+  
   constructor() {
+    this.logger.logger("je suis le cvComponent");
+    this.toastr.info("Bienvenu dans notre CvTech");
+    this.cvService.selectCv$
+      .pipe(takeUntilDestroyed())
+      .subscribe((cv) => (this.router.navigate([cv?.id], { relativeTo: this.acr })));
+  }
+}
+
+
+/*
+old code :
     this.cvService.getCvs().subscribe({
       next: (cvs) => {
         this.cvs = cvs;
@@ -46,10 +60,21 @@ export class MasterDetailsCvComponent {
           Veuillez contacter l'admin.`);
       },
     });
-    this.logger.logger("je suis le cvComponent");
-    this.toastr.info("Bienvenu dans notre CvTech");
-    this.cvService.selectCv$
-      .pipe(takeUntilDestroyed())
-      .subscribe((cv) => (this.router.navigate([cv?.id], { relativeTo: this.acr })));
-  }
-}
+    
+    
+*/
+
+/*
+  CvResource = rxResource({
+    loader: () => this.cvService.getCvs().pipe(
+      catchError((err) => {
+        this.toastr.error(`
+          Attention!! Les données sont fictives, problème avec le serveur.
+          Veuillez contacter l admin.`);
+    
+        return of(this.cvService.getFakeCvs());
+      }
+      )
+    )
+  });
+*/

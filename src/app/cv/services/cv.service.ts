@@ -1,14 +1,17 @@
 import { Injectable, inject } from "@angular/core";
 import { Cv } from "../model/cv";
-import { Observable, Subject } from "rxjs";
+import { catchError, Observable, of, shareReplay, Subject } from "rxjs";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { API } from "../../../config/api.config";
+import { rxResource } from "@angular/core/rxjs-interop";
+import { ToastrService } from "ngx-toastr";
 
 @Injectable({
   providedIn: "root",
 })
 export class CvService {
   private http = inject(HttpClient);
+  private toastr = inject(ToastrService);
 
   private cvs: Cv[] = [];
   /**
@@ -25,6 +28,20 @@ export class CvService {
       new Cv(2, "skander", "sellaouti", "enfant", "       ", "1234", 4),
     ];
   }
+
+
+  CvResource = rxResource({
+      loader: () => this.getCvs().pipe(
+        catchError((err) => {
+          this.toastr.error(`
+            Attention!! Les données sont fictives, problème avec le serveur.
+            Veuillez contacter l admin.`);
+      
+          return of(this.getFakeCvs());
+        }
+        )
+      )
+  });
 
   /**
    *

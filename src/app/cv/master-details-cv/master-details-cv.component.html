@@ -5,7 +5,7 @@
     <div class="alert alert-warning">
       {{ date | date : "full" | uppercase }}
     </div>
-    <app-list [cvs]="cvs"></app-list>
+    <app-list [cvs]="cvSignal() || null"></app-list>
   </div>
   <div class="col">
     <router-outlet></router-outlet>
