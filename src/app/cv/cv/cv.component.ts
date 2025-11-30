@@ -25,7 +25,7 @@ import { catchError, of } from "rxjs";
 export class CvComponent {
   private logger = inject(LoggerService);
   private toastr = inject(ToastrService);
-  private cvService = inject(CvService);
+ cvService = inject(CvService);
 
 
   selectedCv: Cv | null = null;
