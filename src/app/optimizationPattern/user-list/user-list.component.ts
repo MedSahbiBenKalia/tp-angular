@@ -31,10 +31,10 @@ export class UserListComponent {
       takeUntilDestroyed()
     )
     .subscribe((event : Event) => {
-      //console.log('input event fired event:', event);
-      const inputElement = event.target as HTMLInputElement; 
+      const inputElement = event.target as HTMLInputElement;
+      const oldValue = this.userFullName;  
       this.userFullName = inputElement.value;
-      this.cdr.detectChanges(); 
+        if(!(oldValue.length * this.userFullName.length)) {this.cdr.detectChanges();} 
     });
   }
 

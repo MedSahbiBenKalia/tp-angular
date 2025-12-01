@@ -9,7 +9,8 @@ export const fibonnaci = (n: number): number => {
 
 @Pipe({
   name: 'fibonacci',
-  standalone: true
+  standalone: true,
+  pure: true
 })
 export class FibonacciPipe implements PipeTransform {
   
