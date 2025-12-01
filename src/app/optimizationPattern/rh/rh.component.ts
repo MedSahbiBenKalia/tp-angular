@@ -4,8 +4,10 @@ import {lastRender} from "../last-render";
 import * as ChartJs from 'chart.js/auto';
 import { UserListComponent } from '../user-list/user-list.component';
 import { USER_CLUSTERS } from '../const/user-cluster.constant';
+import { Observable, scan, tap } from 'rxjs';
+import { AsyncPipe } from '@angular/common';
 @Component({
-  imports: [UserListComponent],
+  imports: [UserListComponent , AsyncPipe],
   standalone: true,
   selector: 'app-rh',
   templateUrl: './rh.component.html',
@@ -13,29 +15,37 @@ import { USER_CLUSTERS } from '../const/user-cluster.constant';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RhComponent implements OnInit {
-  oddUsers: User[];
-  evenUsers: User[];
+  oddUsers$ : Observable<User[]>;
+  evenUsers$ : Observable<User[]>;
+  oddUsersLength: number = 0;
+  evenUsersLength: number = 0;
   chart: any;
   USER_CLUSTERS = USER_CLUSTERS;
   private cdr = inject(ChangeDetectorRef);
   private userService = inject(UsersService);
   constructor() {
-    this.oddUsers = this.userService.getOddOrEven(true);
-    this.evenUsers = this.userService.getOddOrEven();
+    this.oddUsers$ = this.userService.workerUser$.pipe(
+      tap((value) => console.log('Workers emitted value:', value)),
+      scan((acc : User[], curr: User[]) => [...acc, ...curr], []),
+      tap((users : User[]) => {
+        this.oddUsersLength = users.length;
+        this.updateChart();
+      })
+    );
+    this.evenUsers$ = this.userService.bossUser$.pipe(
+      scan((acc : User[], curr: User[]) => [...acc, ...curr], []),
+      tap((users : User[]) => {
+        this.evenUsersLength = users.length;
+        this.updateChart();
+      })
+    );
+
+    
+
   }
 
   ngOnInit(): void {
         this.createChart();
-        this.userService.bossUser$.subscribe((newBossUser) => {
-          this.evenUsers = this.userService.addUser(this.evenUsers, newBossUser.name);
-          this.cdr.markForCheck();
-          this.updateChart();
-        });
-        this.userService.workerUser$.subscribe((newWorkerUser) => {
-          this.oddUsers = this.userService.addUser(this.oddUsers, newWorkerUser.name);
-          this.cdr.markForCheck();
-          this.updateChart();
-        });
     }
   
   
@@ -45,8 +55,8 @@ export class RhComponent implements OnInit {
   
   createChart(){
     const data = [
-      { users: 'Workers', count: this.oddUsers.length },
-      { users: 'Boss', count: this.evenUsers.length },
+      { users: 'Workers', count: this.oddUsersLength },
+      { users: 'Boss', count: this.evenUsersLength },
     ];
     this.chart = new ChartJs.Chart("MyChart",
     {
@@ -64,8 +74,8 @@ export class RhComponent implements OnInit {
   }
   updateChart(){
     this.chart.data.datasets[0].data = [
-      this.oddUsers.length,
-      this.evenUsers.length
+      this.oddUsersLength,
+      this.evenUsersLength
     ];
     this.chart.update();
   }

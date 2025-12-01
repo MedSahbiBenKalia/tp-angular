@@ -10,6 +10,13 @@ export interface User {
   providedIn: 'root'
 })
 export class UsersService {
+  #workerUserSubject ;
+  workerUser$ ;
+
+  #bossUserSubject ; 
+  bossUser$ ;
+
+
   users: User [] = [];
   constructor() {
     for (let i = 0; i<50; i++)
@@ -17,37 +24,31 @@ export class UsersService {
         name: faker.name.fullName(),
         age: faker.datatype.number({min: 18, max: 30})
       });
+
+    this.#bossUserSubject = new BehaviorSubject<User[]>(this.getOddOrEven());
+    this.bossUser$ = this.#bossUserSubject.asObservable();
+
+    this.#workerUserSubject = new BehaviorSubject<User[]>(this.getOddOrEven(true));
+    this.workerUser$ = this.#workerUserSubject.asObservable();
+
   }
-  getOddOrEven(isOdd = false): User[] {
+  private getOddOrEven(isOdd = false): User[] {
     return this.users.filter((user) => !!(user.age % 2) == isOdd );
   }
   
-  addUser(list: User[], name: string) {
-    const newUser = {
-      name,
-      age: faker.datatype.number({min: 18, max: 30})
-    };
-    return [newUser, ...list];
-  }
-
-  #bossUserSubject = new Subject<User>();
-  bossUser$ = this.#bossUserSubject.asObservable();
   addbossUser(name: string) {
     const newBossUser = {
       name,
       age: faker.datatype.number({min: 18, max: 30})
     };
-    this.#bossUserSubject.next(newBossUser);
+    this.#bossUserSubject.next([newBossUser]);
   }
-
-  #workerUserSubject = new Subject<User>();
-  workerUser$ = this.#workerUserSubject.asObservable()
   addworkerUser(name: string) {
     const newWorkerUser = {
       name,
       age: faker.datatype.number({min: 18, max: 30})
     };
-    this.#workerUserSubject.next(newWorkerUser);
+    this.#workerUserSubject.next([newWorkerUser]);
   }
 
 }

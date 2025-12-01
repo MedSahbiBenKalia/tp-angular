@@ -25,19 +25,7 @@ export class UserListComponent {
   @Input() users: User[] = [];
   userFullName: string = '';
 
-  // addUser() {
-  //   if(!this.userFullName.trim()) return;
-  //   if(this.usersCluster === USER_CLUSTERS.BOSS) {
-  //     this.userService.addbossUser(this.userFullName.trim());
-  //   } else if (this.usersCluster === USER_CLUSTERS.WORKERS) {
-  //     this.userService.addworkerUser(this.userFullName.trim());
-  //   }
-  //   this.userFullName = '';
-  // }
-
   constructor() {
-
-
     fromEvent<Event>(this.host.nativeElement, 'input')
     .pipe(
       takeUntilDestroyed()

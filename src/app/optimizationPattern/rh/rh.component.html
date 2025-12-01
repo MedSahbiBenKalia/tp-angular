@@ -8,9 +8,9 @@
 
 <div class="row">
   <div class="col">
-    <app-user-list  [users]="oddUsers" [usersCluster]="USER_CLUSTERS.WORKERS"></app-user-list>
+    <app-user-list [users]="(oddUsers$ | async) ?? []" [usersCluster]="USER_CLUSTERS.WORKERS"></app-user-list>
   </div>
   <div class="col">
-    <app-user-list  [users]="evenUsers" [usersCluster]="USER_CLUSTERS.BOSS"></app-user-list>
+    <app-user-list [users]="(evenUsers$ | async) ?? []" [usersCluster]="USER_CLUSTERS.BOSS"></app-user-list>
   </div>
 </div>
