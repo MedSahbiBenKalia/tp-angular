@@ -37,9 +37,6 @@ const routes: Route[] = [
   }
   ,
   
-  
-  
-  
   {
     path: "",
     component: FrontComponent,
