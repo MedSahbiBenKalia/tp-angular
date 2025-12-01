@@ -34,7 +34,7 @@ export class UserListComponent {
       const inputElement = event.target as HTMLInputElement;
       const oldValue = this.userFullName;  
       this.userFullName = inputElement.value;
-        if(!(oldValue.length * this.userFullName.length)) {this.cdr.detectChanges();} 
+      if(((oldValue.trim().length > 0) !== (this.userFullName.trim().length > 0))) {this.cdr.detectChanges();} 
     });
 
 
