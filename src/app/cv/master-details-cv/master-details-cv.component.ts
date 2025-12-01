@@ -35,7 +35,7 @@ export class MasterDetailsCvComponent {
   selectedCv: Cv | null = null;
   date = new Date();
   
-  cvSignal = this.cvService.CvResource.value;
+  cvSignal = this.cvService.cvsFromResource;
   
   constructor() {
     this.logger.logger("je suis le cvComponent");

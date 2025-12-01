@@ -30,7 +30,7 @@ export class CvComponent {
 
   selectedCv: Cv | null = null;
   date = new Date();
-  cvs = this.cvService.CvResource.value;
+  cvs = this.cvService.cvsFromResource;
 
   constructor() {
     this.logger.logger("je suis le cvComponent");

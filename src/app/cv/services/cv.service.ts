@@ -34,7 +34,7 @@ export class CvService {
    * @returns esourceRef<Cv[] | undefined>
    */
 
-  CvResource = rxResource({
+  private readonly _cvResource = rxResource({
       loader: () => this.getCvs().pipe(
         catchError((err) => {
           this.toastr.error(`
@@ -46,6 +46,26 @@ export class CvService {
         )
       )
   });
+
+  /**
+   * the value of the Cv resource
+   */
+  readonly cvsFromResource = this._cvResource.value;      
+  /**
+   * the error of the Cv resource
+   */
+  readonly errorFromResource = this._cvResource.error;
+  /**
+   * the loading state of the Cv resource 
+   */    
+  readonly loadingFromResource = this._cvResource.isLoading;
+
+  /**
+   * Permet de recharger les cvs depuis la ressource RxJS
+   */
+  reloadCvResource() {
+    this._cvResource.reload();
+  }
 
   /**
    *
