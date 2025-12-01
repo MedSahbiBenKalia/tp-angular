@@ -29,6 +29,10 @@ export class CvService {
     ];
   }
 
+  /**
+   * a resource RxJS pour gérer le chargement des cvs
+   * @returns esourceRef<Cv[] | undefined>
+   */
 
   CvResource = rxResource({
       loader: () => this.getCvs().pipe(
