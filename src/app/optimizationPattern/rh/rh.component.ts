@@ -25,15 +25,14 @@ export class RhComponent implements OnInit {
   private userService = inject(UsersService);
   constructor() {
     this.oddUsers$ = this.userService.workerUser$.pipe(
-      tap((value) => console.log('Workers emitted value:', value)),
-      scan((acc : User[], curr: User[]) => [...acc, ...curr], []),
+      scan((acc : User[], curr: User[]) => [...curr, ...acc], []),
       tap((users : User[]) => {
         this.oddUsersLength = users.length;
         this.updateChart();
       })
     );
     this.evenUsers$ = this.userService.bossUser$.pipe(
-      scan((acc : User[], curr: User[]) => [...acc, ...curr], []),
+      scan((acc : User[], curr: User[]) => [...curr, ...acc], []),
       tap((users : User[]) => {
         this.evenUsersLength = users.length;
         this.updateChart();
