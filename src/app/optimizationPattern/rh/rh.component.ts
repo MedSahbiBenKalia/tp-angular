@@ -1,8 +1,9 @@
-import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnInit} from '@angular/core';
 import {User, UsersService} from "../users.service";
 import {lastRender} from "../last-render";
 import * as ChartJs from 'chart.js/auto';
 import { UserListComponent } from '../user-list/user-list.component';
+import { USER_CLUSTERS } from '../const/user-cluster.constant';
 @Component({
   imports: [UserListComponent],
   standalone: true,
@@ -15,24 +16,28 @@ export class RhComponent implements OnInit {
   oddUsers: User[];
   evenUsers: User[];
   chart: any;
-  constructor(private userService: UsersService) {
+  USER_CLUSTERS = USER_CLUSTERS;
+  private cdr = inject(ChangeDetectorRef);
+  private userService = inject(UsersService);
+  constructor() {
     this.oddUsers = this.userService.getOddOrEven(true);
     this.evenUsers = this.userService.getOddOrEven();
   }
 
   ngOnInit(): void {
         this.createChart();
+        this.userService.bossUser$.subscribe((newBossUser) => {
+          this.evenUsers = this.userService.addUser(this.evenUsers, newBossUser.name);
+          this.cdr.markForCheck();
+          this.updateChart();
+        });
+        this.userService.workerUser$.subscribe((newWorkerUser) => {
+          this.oddUsers = this.userService.addUser(this.oddUsers, newWorkerUser.name);
+          this.cdr.markForCheck();
+          this.updateChart();
+        });
     }
-  addUser(list: User[], newUser: string) {
-    this.userService.addUser(list, newUser);
-
-    this.chart.data.datasets[0].data = [
-      this.oddUsers.length,
-      this.evenUsers.length
-    ];
-
-    this.chart.update();
-  }
+  
   
   lastRender(): string {
     return lastRender();
@@ -56,5 +61,12 @@ export class RhComponent implements OnInit {
       ]
     }
     });
+  }
+  updateChart(){
+    this.chart.data.datasets[0].data = [
+      this.oddUsers.length,
+      this.evenUsers.length
+    ];
+    this.chart.update();
   }
 }
