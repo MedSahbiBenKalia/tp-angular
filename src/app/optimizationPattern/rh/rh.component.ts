@@ -1,22 +1,21 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
 import {User, UsersService} from "../users.service";
+import {lastRender} from "../last-render";
 import * as ChartJs from 'chart.js/auto';
 import { UserListComponent } from '../user-list/user-list.component';
 @Component({
-    selector: 'app-rh',
-    templateUrl: './rh.component.html',
-    styleUrls: ['./rh.component.css'],
-    standalone: true,
-    changeDetection : ChangeDetectionStrategy.OnPush,
-    imports: [UserListComponent]
+  imports: [UserListComponent],
+  standalone: true,
+  selector: 'app-rh',
+  templateUrl: './rh.component.html',
+  styleUrls: ['./rh.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RhComponent implements OnInit {
-  private userService = inject(UsersService);
-
   oddUsers: User[];
   evenUsers: User[];
   chart: any;
-  constructor() {
+  constructor(private userService: UsersService) {
     this.oddUsers = this.userService.getOddOrEven(true);
     this.evenUsers = this.userService.getOddOrEven();
   }
@@ -26,7 +25,19 @@ export class RhComponent implements OnInit {
     }
   addUser(list: User[], newUser: string) {
     this.userService.addUser(list, newUser);
+
+    this.chart.data.datasets[0].data = [
+      this.oddUsers.length,
+      this.evenUsers.length
+    ];
+
+    this.chart.update();
   }
+  
+  lastRender(): string {
+    return lastRender();
+  }
+  
   createChart(){
     const data = [
       { users: 'Workers', count: this.oddUsers.length },
@@ -45,15 +56,5 @@ export class RhComponent implements OnInit {
       ]
     }
     });
-  }
-  
-  
-  /**
-   * give the time of the last change detection
-   * @returns the time of the last change detection 
-   */
-  lastCD(): string {
-    const now = new Date();
-    return `Last Change Detection at ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
   }
 }

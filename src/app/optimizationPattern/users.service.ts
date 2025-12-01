@@ -26,4 +26,5 @@ export class UsersService {
       age: faker.datatype.number({min: 18, max: 30})
     });
   }
+
 }

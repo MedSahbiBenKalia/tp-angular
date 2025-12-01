@@ -1,24 +1,23 @@
-import {Component, Input, Output, EventEmitter, ChangeDetectionStrategy} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ChangeDetectorRef, ChangeDetectionStrategy, inject, ElementRef, OnInit} from '@angular/core';
 import {User} from "../users.service";
-import { FormsModule } from '@angular/forms';
+import { fromEvent  } from 'rxjs';
+import { lastRender } from '../last-render';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { UserItemComponent } from '../user-item/user-item.component';
 
-
-export const fibonnaci = (n: number): number => {
-  if (n==1 || n==0) {
-    return 1;
-  }
-  return fibonnaci(n-1) + fibonnaci(n-2);
-}
 
 @Component({
-    selector: 'app-user-list',
-    templateUrl: './user-list.component.html',
-    styleUrls: ['./user-list.component.css'],
-    standalone: true,
-    imports: [FormsModule],
-    changeDetection : ChangeDetectionStrategy.OnPush
+  imports: [UserItemComponent],
+  standalone: true,
+  selector: 'app-user-list',
+  templateUrl: './user-list.component.html',
+  styleUrls: ['./user-list.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UserListComponent {
+
+  private host = inject(ElementRef);
+  private cdr = inject(ChangeDetectorRef);
   @Input() usersCluster: string = '';
   @Input() users: User[] = [];
   @Output() add = new EventEmitter<string>();
@@ -27,10 +26,23 @@ export class UserListComponent {
     this.add.emit(this.userFullName);
     this.userFullName = '';
   }
-  fibo(n: number): number {
-    const fib = fibonnaci(n);
-    console.log({n, fib});
 
-    return fib;
+  constructor() {
+    fromEvent<Event>(this.host.nativeElement, 'input')
+    .pipe(
+      takeUntilDestroyed()
+    )
+    .subscribe((event : Event) => {
+      const inputElement = event.target as HTMLInputElement;
+      const oldValue = this.userFullName;  
+      this.userFullName = inputElement.value;
+        if(!(oldValue.length * this.userFullName.length)) {this.cdr.detectChanges();} 
+    });
+  }
+
+  lastRender(): string {
+    return lastRender();
   }
 }
+
+
